@@ -1,26 +1,9 @@
-
-# The core of this module was adapted from Google AppEngine's
-# GeoPt field, so I've included their copyright and license.
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
 from django.db import models
 from django.core import exceptions
+from django import forms
 
-__all__ = ('AddressField', 'GeoLocationField')
+from widgets import GoogleMapsWidget
+
 
 def typename(obj):
     """Returns the type of obj as a string. More descriptive and specific than
@@ -31,42 +14,25 @@ def typename(obj):
         return type(obj).__name__
 
 class GeoPt(object):
-    """A geographical point."""
+    "A geographical point."
 
     lat = None
     lon = None
 
     def __init__(self, lat, lon=None):
-        """
-        If the model field has 'blank=True' or 'null=True' then
-        we can't always expect the GeoPt to be instantiated with
-        a valid value. In this case we'll let GeoPt be instantiated
-        as an empty item, and the string representation should be
-        an empty string instead of 'lat,lon'.
-        """
-        if not lat:
-            return
-
         if lon is None:
             lat, lon = self._split_geo_point(lat)
         self.lat = self._validate_geo_range(lat, 90)
         self.lon = self._validate_geo_range(lon, 180)
 
     def __unicode__(self):
-        if self.lat is not None and self.lon is not None:
-            return "%s,%s" % (self.lat, self.lon)
-        return ''
-
-    def __eq__(self, other):
-        if isinstance(other, GeoPt):
-            return bool(self.lat == other.lat and self.lon == other.lon)
-        return False
+        return "%s,%s" % (self.lat, self.lon)
 
     def __len__(self):
         return len(self.__unicode__())
 
     def _split_geo_point(self, geo_point):
-        """splits the geo point into lat and lon"""
+        "splits the geo point into lat and lon"
         try:
             return geo_point.split(',')
         except (AttributeError, ValueError):
@@ -87,12 +53,14 @@ class GeoPt(object):
             )
         return geo_part
 
-class AddressField(models.CharField):
-    pass
-
-class GeoLocationField(models.CharField):
+class GeoLocationFormField(forms.CharField):
+    """ 
+    A form field used as the model fields default field
     """
-    A geographical point, specified by floating-point latitude and longitude
+    widget = GoogleMapsWidget
+    
+class GeoLocationField(models.CharField):
+    """A geographical point, specified by floating-point latitude and longitude
     coordinates. Often used to integrate with mapping sites like Google Maps.
     May also be used as ICBM coordinates.
 
@@ -104,7 +72,6 @@ class GeoLocationField(models.CharField):
     ranges [-90, 90] and [-180, 180], respectively.
     """
     description = "A geographical point, specified by floating-point latitude and longitude coordinates."
-    __metaclass__ = models.SubfieldBase
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 100
@@ -116,8 +83,8 @@ class GeoLocationField(models.CharField):
         return GeoPt(value)
 
     def get_prep_value(self, value):
-        """prepare the value for database query"""
-        return unicode(value)
+        "prepare the value for database query"
+        return "%s,%s" % (value.lat, value.lon)
 
     def get_prep_lookup(self, lookup_type, value):
         # We only handle 'exact' and 'in'. All others are errors.
@@ -132,9 +99,11 @@ class GeoLocationField(models.CharField):
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
 
+    def formfield(self, form_class=forms.CharField, **kwargs):
+        return super(GeoLocationField, self).formfield(form_class=GeoLocationFormField)
+        
 try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^django_google_maps\.fields\.GeoLocationField"])
-    add_introspection_rules([], ["^django_google_maps\.fields\.AddressField"])
+ 	from south.modelsinspector import add_introspection_rules
+	add_introspection_rules([], ["^gmap_admin\.fields\.GeoLocationField"])
 except ImportError:
-    pass
+	pass
