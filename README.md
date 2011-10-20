@@ -1,7 +1,6 @@
-This fork uses the same modelfield, but it is aimed at providing a
-simple form field and widget to allow the django admin user to manually
-choose a single location on a map. I have removed any address geocoding
-as it's not relevant to my needs
+**FORK INFO** A simple modelfield, formfield and widget to allow a user pick a single location via google maps.
+I have removed address geocoding from the original and also incorperated a default formfield to avoid having to 
+mess with modeladmins
 
 ![Screenshot](https://github.com/pastylegs/django-google-maps/raw/master/screenshot.png)
 
