@@ -1,22 +1,22 @@
-**FORK INFO** A simple modelfield, formfield and widget to allow a user pick a single location via google maps.
-I have removed address geocoding from the original and also incorperated a default formfield to avoid having to 
-mess with modeladmins
+A simple modelfield, formfield and widget combination to allow a user pick a single location via google maps
+in the django admin (without needing to install GeoDjango etc!).
+
+In this fork, I have removed address geocoding (you manually pick a location on the map) and I 
+also incorperated a default formfield so you don't have to mess with ModelAdmins - just add the 
+modelfield to your model. 
 
 ![Screenshot](https://github.com/pastylegs/django-google-maps/raw/master/screenshot.png)
 
 USAGE:
 ------
-- include the `django_google_maps` app in your `settings.py`
-- create a model that has a geolocation field
+- include the `gmap_admin` app in your `settings.py`
+- create a model that has a GeoLocationField field
   <pre><code>
     from django.db import models
     from gmap_admin.fields import GeoLocationField
     
     class Rental(models.Model):
         geolocation = GeoLocationField(max_length=100)    
-  </code></pre>
-- The form field and widget are set automatically so you don't need to specify 
-  anything in the admin
   </code></pre>
   
 That should be all you need to get started. If you're not using Django 1.3
