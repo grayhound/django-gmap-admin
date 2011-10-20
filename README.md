@@ -10,7 +10,7 @@ USAGE:
 - create a model that has a geolocation field
   <pre><code>
     from django.db import models
-    from django_google_maps.fields import GeoLocationField
+    from gmap_admin.fields import GeoLocationField
     
     class Rental(models.Model):
         geolocation = GeoLocationField(max_length=100)    

@@ -1,8 +1,7 @@
-
 import os
 from setuptools import setup
 
-from django_google_maps import VERSION
+from gmap_admin import VERSION
 
 REQUIREMENTS = [
     'django',
@@ -23,14 +22,14 @@ CLASSIFIERS = [
 ]
 
 setup(
-    name="django-google-maps",
+    name="django_gmap_admin",
     version=VERSION,
     author="Aaron Madison",
-    author_email="aaron.l.madison@gmail.com",
-    description="Plugs google maps V3 api into Django admin.",
+    author_email="timmy@pastylegs.com",
+    description="Simple django admin modelfield, formfield and widget combination for choosing locations",
     long_description=LONG_DESCRIPTION,
-    url="https://github.com/madisona/django-google-maps",
-    packages=("django_google_maps",),
+    url="https://github.com/pastylegs/django_gmap_admin",
+    packages=("gmap_admin",),
     include_package_data=True,
     install_requires=REQUIREMENTS,
     classifiers=CLASSIFIERS,

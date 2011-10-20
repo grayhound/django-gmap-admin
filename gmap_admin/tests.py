@@ -1,10 +1,9 @@
-
 from mock import patch, Mock
 
 from django import test
 from django.core import exceptions
 
-from django_google_maps import fields
+from gmap_admin import fields
 
 class GeoPtFieldTests(test.TestCase):
 
