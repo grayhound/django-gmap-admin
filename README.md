@@ -3,7 +3,7 @@ simple form field and widget to allow the django admin user to manually
 choose a single location on a map. I have removed any address geocoding
 as it's not relevant to my needs
 
-![Screenshot](screenshot.png)
+![Screenshot](https://github.com/pastylegs/django-google-maps/raw/master/screenshot.png)
 
 USAGE:
 ------
