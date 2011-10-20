@@ -3,8 +3,7 @@ simple form field and widget to allow the django admin user to manually
 choose a single location on a map. I have removed any address geocoding
 as it's not relevant to my needs
 
-![Screenshot](/screenshot.png)
-Format: ![Alt Text](url)
+![Screenshot](screenshot.png)
 
 USAGE:
 ------
