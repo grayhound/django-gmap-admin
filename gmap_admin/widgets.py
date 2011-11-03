@@ -8,11 +8,10 @@ from gmap_admin import settings as gmap_settings
 class GoogleMapsWidget(widgets.HiddenInput):
     
 	class Media:
-		js = (
-			'https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js',
+		js = [
 			'http://maps.google.com/maps/api/js?sensor=false',
-			settings.STATIC_URL + 'gmap_admin/js/google-maps-admin.js',
-	        )
+			'gmap_admin/js/google-maps-admin.js',
+	        ]
 
 	def render(self, name, value, attrs=None):
 		if value is None:
@@ -23,16 +22,25 @@ class GoogleMapsWidget(widgets.HiddenInput):
 		html = u"""
 					<input%(attrs)s />
 					<div class="map_canvas_wrapper" style="display:inline-block;">
-						<div id="map_canvas" style="width:%(width)spx;height:%(height)spx"></div>
+						<div id="%(map_id)s" style="width:%(width)spx;height:%(height)spx"></div>
 						<script>
-							$(document).ready(function() {
-							    GMAP.init("map_canvas","#id_location",%(zoom)s,%(center_lng)s,%(center_lat)s);
+							django.jQuery(function($) {
+							    $("#%(field_id)s").gmapAdmin({
+    							        'zoom': %(zoom)s,
+    							        'lat': '%(center_lat)s',
+    							        'lng': '%(center_lng)s',
+    							        'map_elem': '#%(map_id)s',
+    							        'delete_elem' : '#%(delete_id)s',
+    							});
 							});
 						</script>
 					</div>
-					<p><a id="delete-marker" href="javascript:void(0)">Remove Marker</a></p>
+					<p><a id="%(delete_id)s" href="javascript:void(0)">Remove Marker</a></p>
 					<p class="help">Double click to zoom in and center on a location. Right click to set the marker on  a position. You can also drag and drop the marker</p>
 				""" % { 
+				        'field_id' : attrs['id'],
+				        'delete_id' : 'map_delete_%s'%attrs['id'],
+				        'map_id' : 'map_%s'%attrs['id'],
 						'attrs' : flatatt(final_attrs),
 						'height': gmap_settings.HEIGHT,
 						'width': gmap_settings.WIDTH,

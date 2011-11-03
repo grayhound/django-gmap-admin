@@ -1,9 +1,9 @@
 from django.db import models
 from django.core import exceptions
 from django import forms
+from django.utils.encoding import smart_unicode, smart_str, force_unicode
 
 from widgets import GoogleMapsWidget
-
 
 def typename(obj):
     """Returns the type of obj as a string. More descriptive and specific than
@@ -53,14 +53,12 @@ class GeoPt(object):
             )
         return geo_part
 
-class GeoLocationFormField(forms.CharField):
-    """ 
-    A form field used as the model fields default field
-    """
-    widget = GoogleMapsWidget
-    
+class GoogleMapsFormField(forms.CharField):
+    pass
+          
 class GeoLocationField(models.CharField):
-    """A geographical point, specified by floating-point latitude and longitude
+    """
+    A geographical point, specified by floating-point latitude and longitude
     coordinates. Often used to integrate with mapping sites like Google Maps.
     May also be used as ICBM coordinates.
 
@@ -78,12 +76,14 @@ class GeoLocationField(models.CharField):
         super(GeoLocationField, self).__init__(*args, **kwargs)
 
     def to_python(self, value):
+        print "asdf:%s"%value
         if isinstance(value, GeoPt):
             return value
         return GeoPt(value)
 
     def get_prep_value(self, value):
-        "prepare the value for database query"
+        if value == u'':
+            return None
         return "%s,%s" % (value.lat, value.lon)
 
     def get_prep_lookup(self, lookup_type, value):
@@ -96,11 +96,14 @@ class GeoLocationField(models.CharField):
             raise TypeError('Lookup type %r not supported.' % lookup_type)
 
     def value_to_string(self, obj):
+        print obj
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
 
-    def formfield(self, form_class=forms.CharField, **kwargs):
-        return super(GeoLocationField, self).formfield(form_class=GeoLocationFormField)
+    def formfield(self, **kwargs):
+        defaults = {'widget':GoogleMapsWidget}
+        kwargs.update(defaults)
+        return super(GeoLocationField, self).formfield(form_class=GoogleMapsFormField, **kwargs)
         
 try:
  	from south.modelsinspector import add_introspection_rules

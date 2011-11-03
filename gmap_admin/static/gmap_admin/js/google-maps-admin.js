@@ -1,78 +1,86 @@
-var GMAP = window.GMAP || {};
-var GMAP = {
-	map : "",
-	marker : "",
-	field_id : "",
-	map_id : "",
-	init : function(map_id, field_id, zoom, default_long, default_lat){
+django.jQuery(function($){
+	
+	$.fn.gmapAdmin = function(options){
+		var defaults = {	
+			'zoom':8,	
+			'lat':'53.311',
+			'lng':'-6.24',
+			'map_elem' : '#id_map',
+			'delete_elem' : '#id_delete',
+		};
+		
+		var options = $.extend(defaults, options);
+		var value = null;
+		var marker = null;
+		var map = null;
+		var latlng = null;
 		var that = this;
-		that.field_id = field_id;
-		// Create the map and default it
-		var latlng = new google.maps.LatLng(default_lat,default_long);
-		that.map = new google.maps.Map(document.getElementById(map_id),{
-			zoom: zoom,
+		
+		var set_field = function(latlng){
+		    if(marker){
+		        $(that).val(latlng.lat()+","+latlng.lng());
+    		}
+		};
+		
+		var get_field = function(){
+		    if($(that).val()){
+    			return $(that).val().split(",");
+    		}else{
+    			return "";
+    		}
+		};
+		
+		var remove_field = function(){
+		    if(marker!==""){
+    			$(that).removeAttr("value");
+    		}
+		};
+		
+		var remove_marker = function(){
+		    marker.setMap(null);
+    		marker = null;
+		};
+		
+		var set_marker = function(latlng){
+		    if(!marker){
+		        marker = new google.maps.Marker({
+    				map:map,
+    				draggable:true,
+    				position: latlng,
+    			});
+    			google.maps.event.addListener(marker, 'click', function(new_location) {
+    			    map.setZoom(13);
+    				map.setCenter(new_location.latLng);
+    			});
+    			google.maps.event.addListener(marker, 'dragend', function(new_location) {
+    				set_field(new_location.latLng);
+    			});
+    		}else{
+    		    marker.setPosition(latlng)
+    		}
+		};	
+		
+		latlng = new google.maps.LatLng(options.lat,options.lng);
+        map = new google.maps.Map(document.getElementById($(options.map_elem).attr('id')),{
+			zoom: options.zoom,
 			center : latlng,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 		});
 		// If there is a value in the field, load it onto the map
-		var current = this.getField();
-		if(current!==""){
-			that.setMarker(new google.maps.LatLng(current[0],current[1]));
+		if(get_field()!==""){
+			set_marker(new google.maps.LatLng(get_field()[0],get_field()[1]));
 		}
-		google.maps.event.addListener(that.map, 'rightclick', function(new_location) {
-			that.setMarker(new_location.latLng);
-			that.setField(new_location.latLng);
+		/* Listeners */
+		google.maps.event.addListener(map, 'rightclick', function(new_location) {
+		    set_marker(new_location.latLng);
+			set_field(new_location.latLng);
 		});
-		$('#delete-marker').click(function(){
-			if(this.marker!==""){
-				that.removeMarker();
-				that.removeField();
+		$(options.delete_elem).click(function(){
+			if(marker!==""){
+				remove_marker();
+				remove_field();
 			}
 		});
-	},
-	// 
-	getField : function(){
-		var current = $(this.field_id).val();
-		if(current){
-			return current.split(",");
-		}else{
-			return "";
-		}
-	},
-	//
-	removeField : function(){
-		if(this.marker!==""){
-			$(this.field_id).removeAttr("value");
-		}
-	},
-	//
-	setField : function(latlng){
-		if(this.marker){
-			$(this.field_id).val(latlng.lat()+","+latlng.lng());
-		}
-	},
-	//
-	removeMarker : function(){
-		this.marker.setMap(null);
-		this.marker = null;
-	},
-	setMarker : function(latlng){
-		var that = this;
-		if(!that.marker){
-			that.marker = new google.maps.Marker({
-				map:that.map,
-				draggable:true,
-				position: latlng,
-			});
-			google.maps.event.addListener(this.marker, 'click', function(new_location) {
-			    that.map.setZoom(13);
-				that.map.setCenter(new_location.latLng);
-			});
-			google.maps.event.addListener(this.marker, 'dragend', function(new_location) {
-				that.setField(new_location.latLng);
-			});
-		}else{
-			that.marker.setPosition(latlng)
-		}
-	},
-};
+		
+	};
+});
