@@ -15,7 +15,7 @@ class GoogleMapsWidget(widgets.HiddenInput):
 			]
 
 	def render(self, name, value, attrs=None):
-		if value is None:
+		if not value:
 			value = ""
 			center_lng = gmap_settings.DEFAULT_LNG
 			center_lat = gmap_settings.DEFAULT_LAT
