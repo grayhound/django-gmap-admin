@@ -82,7 +82,7 @@ class GeoLocationField(models.CharField):
         return GeoPt(value)
 
     def get_prep_value(self, value):
-        if value == u'':
+        if not value:
             return None
         return "%s,%s" % (value.lat, value.lon)
 
